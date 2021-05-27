@@ -1,5 +1,11 @@
 #### Display items 2 ####
 
+par <- par()
+pal <- palette()
+
+## you may need:
+# install.packages("RColorBrewer")
+
 ## choose working directory:
 path <- "~/virushostgc/"
 
@@ -13,9 +19,9 @@ sum(is.na(data$baltimore))
 # levels = c("dsDNA","ssDNA","dsRNA","+ssRNA","-ssRNA","+ssRNA-RT","dsDNA-RT",""))
 # levels(data$baltimore)[nlevels(df$baltimore)] <- "unknown"
 
-# display.brewer.all()
-# display.brewer.all(colorblindFriendly = TRUE)
-display.brewer.all(colorblindFriendly = TRUE, select = c("Set2","Paired","Dark2"))
+# RColorBrewer::display.brewer.all()
+# RColorBrewer::display.brewer.all(colorblindFriendly = TRUE)
+RColorBrewer::display.brewer.all(colorblindFriendly = TRUE, select = c("Set2","Paired","Dark2"))
 
 baltimore <- c(RColorBrewer::brewer.pal(12, "Paired")[10],
                RColorBrewer::brewer.pal(12, "Paired")[8],
@@ -45,9 +51,9 @@ data$host[data$host_type=="bacteria"] <- "bacteria"
 # data[data$host_cell=="prokaryote"&data$host_type=="",]
 levels(data$host)
 
-# display.brewer.all()
-# display.brewer.all(colorblindFriendly = TRUE)
-display.brewer.all(colorblindFriendly = TRUE, select = c("Set2","Paired","Dark2"))
+# RColorBrewer::display.brewer.all()
+# RColorBrewer::display.brewer.all(colorblindFriendly = TRUE)
+RColorBrewer::display.brewer.all(colorblindFriendly = TRUE, select = c("Set2","Paired","Dark2"))
 
 host <- c("gray",
           RColorBrewer::brewer.pal(12, "Paired")[6],

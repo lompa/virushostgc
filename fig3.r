@@ -7,7 +7,6 @@ setwd(path)
 
 data <- read.csv("s3.csv"); dim(data)
 
-
 data$baltimore <- factor(data$baltimore,
                          levels = c("dsDNA","ssDNA","dsRNA","+ssRNA","-ssRNA","+ssRNA-RT","dsDNA-RT"))
 sum(is.na(data$baltimore))
@@ -102,7 +101,7 @@ abline(eq, lwd = 2, col = adjustcolor("black", 0.5), lty = 3)
 points(x[z], y[z], pch = 20, col = adjustcolor("black",0.33), cex=1.5)
 title(paste0("(",toupper(h),")"),adj=0,cex.main=1.5)
 title(H,font.main=1,cex.main=1)
-title(paste0("n = ",sum(z)),adj=1,font.main=1,cex.main=1)
+title(paste0("n = ",format(sum(z),big.mark=",")),adj=1,font.main=1,cex.main=1)
 # text(2, 85, paste0("r = ", , adj = 0, cex = 1)
 (r <- sprintf(round(cor(x, y, use = "complete.obs"), 2), fmt = "%#.2f"))
 (r2 <- sprintf(round(summary(eq)$adj.r.squared, 2), fmt = "%#.2f"))
@@ -140,7 +139,7 @@ for(i in names(sort(table(vh$Prokaryotes)[-1],decreasing = TRUE))){points(x[z&vh
 points(x[z&vh$Prokaryotes=="archaea"], y[z&vh$Prokaryotes=="archaea"], pch = 20, col = adjustcolor(which(levels(vh$Prokaryotes)=="archaea"),0.33), cex=1.5)
 title(paste0("(",toupper(h),")"),adj=0,cex.main=1.5)
 title(H,font.main=1,cex.main=1)
-title(paste0("n = ",sum(Z)),adj=1,font.main=1,cex.main=1)
+title(paste0("n = ",format(sum(z),big.mark=",")),adj=1,font.main=1,cex.main=1)
 # text(2, 85, paste0("r = ", , adj = 0, cex = 1)
 (r <- sprintf(round(cor(x[Z], y[Z], use = "complete.obs"), 2), fmt = "%#.2f"))
 (r2 <- sprintf(round(summary(eq)$adj.r.squared, 2), fmt = "%#.2f"))
@@ -178,7 +177,7 @@ for(i in names(sort(table(vh$Eukaryotes)[-1],decreasing = TRUE))){points(x[z&vh$
 points(x[z&vh$Eukaryotes=="protists"], y[z&vh$Eukaryotes=="protists"], pch = 20, col = adjustcolor(which(levels(vh$Eukaryotes)=="protists"),0.33), cex=1.5)
 title(paste0("(",toupper(h),")"),adj=0,cex.main=1.5)
 title(H,font.main=1,cex.main=1)
-title(paste0("n = ",sum(Z)),adj=1,font.main=1,cex.main=1)
+title(paste0("n = ",format(sum(z),big.mark=",")),adj=1,font.main=1,cex.main=1)
 # text(2, 85, paste0("r = ", , adj = 0, cex = 1)
 (r <- sprintf(round(cor(x[Z], y[Z], use = "complete.obs"), 2), fmt = "%#.2f"))
 (r2 <- sprintf(round(summary(eq)$adj.r.squared, 2), fmt = "%#.2f"))
@@ -252,14 +251,22 @@ for(j in codons){
   for(k in levels(data$prokaryotic)){
     if(k == ""){
       codPk[[paste(j,i,sep="~")]] <- cbind(k="prokaryotic",
-                                           r=cor(data[data$prokaryotic!=k,i], data[data$prokaryotic!=k,j], use="complete.obs"),
+                                           # r=cor(data[data$prokaryotic!=k,i], data[data$prokaryotic!=k,j], use="complete.obs"),
+                                           r=cor(data[data$prokaryotic!=k,i], data[data$prokaryotic!=k,j], use="na.or.complete"),
+                                           p=cor.test(data[data$prokaryotic!=k,i], data[data$prokaryotic!=k,j], use="na.or.complete")$p.value,
+                                           rho=cor(data[data$prokaryotic!=k,i], data[data$prokaryotic!=k,j], method="spearman", use="na.or.complete"),
+                                           p=cor.test(data[data$prokaryotic!=k,i], data[data$prokaryotic!=k,j], method="spearman", use="na.or.complete")$p.value,
                                            R2=summary(lm(data[data$prokaryotic!=k,j]~data[data$prokaryotic!=k,i]))$adj.r.squared#,
                                            # n=sum(complete.cases(data[data$prokaryotic!=k,c(i,j)]))
       )
     }else{
       codPk[[paste(j,i,sep="~")]] <- rbind(codPk[[paste(j,i,sep="~")]],
                                            cbind(k=k,
-                                                 r=cor(data[data$prokaryotic==k,i], data[data$prokaryotic==k,j], use="complete.obs"),
+                                                 # r=cor(data[data$prokaryotic==k,i], data[data$prokaryotic==k,j], use="complete.obs"),
+                                                 r=cor(data[data$prokaryotic==k,i], data[data$prokaryotic==k,j], use="na.or.complete"),
+                                                 p=cor.test(data[data$prokaryotic==k,i], data[data$prokaryotic==k,j], use="na.or.complete")$p.value,
+                                                 rho=cor(data[data$prokaryotic==k,i], data[data$prokaryotic==k,j], method="spearman", use="na.or.complete"),
+                                                 p=cor.test(data[data$prokaryotic==k,i], data[data$prokaryotic==k,j], method="spearman", use="na.or.complete")$p.value,
                                                  R2=summary(lm(data[data$prokaryotic==k,j]~data[data$prokaryotic==k,i]))$adj.r.squared#,
                                                  # n=sum(complete.cases(data[data$prokaryotic==k,c(i,j)]))
                                            ))
@@ -277,14 +284,22 @@ for(j in codons){
   for(k in levels(data$eukaryotic)){
     if(k == ""){
       codEk[[paste(j,i,sep="~")]] <- cbind(k="eukaryotic",
-                                           r=cor(data[data$eukaryotic!=k,i], data[data$eukaryotic!=k,j], use="complete.obs"),
+                                           # r=cor(data[data$eukaryotic!=k,i], data[data$eukaryotic!=k,j], use="complete.obs"),
+                                           r=cor(data[data$eukaryotic!=k,i], data[data$eukaryotic!=k,j], use="na.or.complete"),
+                                           p=cor.test(data[data$eukaryotic!=k,i], data[data$eukaryotic!=k,j], use="na.or.complete")$p.value,
+                                           rho=cor(data[data$eukaryotic!=k,i], data[data$eukaryotic!=k,j], method="spearman", use="complete.obs"),
+                                           p=cor.test(data[data$eukaryotic!=k,i], data[data$eukaryotic!=k,j], method="spearman", use="na.or.complete")$p.value,
                                            R2=summary(lm(data[data$eukaryotic!=k,j]~data[data$eukaryotic!=k,i]))$adj.r.squared#,
                                            # n=sum(complete.cases(data[data$eukaryotic!=k,c(i,j)]))
       )
     }else{
       codEk[[paste(j,i,sep="~")]] <- rbind(codEk[[paste(j,i,sep="~")]],
                                            cbind(k=k,
-                                                 r=cor(data[data$eukaryotic==k,i], data[data$eukaryotic==k,j], use="complete.obs"),
+                                                 # r=cor(data[data$eukaryotic==k,i], data[data$eukaryotic==k,j], use="complete.obs"),
+                                                 r=cor(data[data$eukaryotic==k,i], data[data$eukaryotic==k,j], use="na.or.complete"),
+                                                 p=cor.test(data[data$eukaryotic==k,i], data[data$eukaryotic==k,j], use="na.or.complete")$p.value,
+                                                 rho=cor(data[data$eukaryotic==k,i], data[data$eukaryotic==k,j], method="spearman", use="na.or.complete"),
+                                                 p=cor.test(data[data$eukaryotic==k,i], data[data$eukaryotic==k,j], method="spearman", use="na.or.complete")$p.value,
                                                  R2=summary(lm(data[data$eukaryotic==k,j]~data[data$eukaryotic==k,i]))$adj.r.squared#,
                                                  # n=sum(complete.cases(data[data$eukaryotic==k,c(i,j)])
                                            ))

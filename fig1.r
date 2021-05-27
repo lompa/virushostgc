@@ -12,13 +12,6 @@ reset <- function() {
 
 data <- read.csv("s1.csv"); dim(data)
 
-data$a <- 100*(data$a.gnm)/data$n.gnm; sum(is.na(data$a))
-data$c <- 100*(data$c.gnm)/data$n.gnm; sum(is.na(data$c))
-data$g <- 100*(data$g.gnm)/data$n.gnm; sum(is.na(data$g))
-data$t <- 100*(data$t.gnm)/data$n.gnm; sum(is.na(data$t))
-
-data$gc <- 100*(data$g.gnm+data$c.gnm)/data$n.gnm; sum(is.na(data$a))
-
 data$baltimore <- factor(data$baltimore,
                          levels = c("dsDNA","ssDNA","dsRNA","+ssRNA","-ssRNA","+ssRNA-RT","dsDNA-RT"))
 sum(is.na(data$baltimore))
@@ -36,6 +29,40 @@ baltimore <- c(RColorBrewer::brewer.pal(12, "Paired")[10],
                RColorBrewer::brewer.pal(12, "Paired")[6],
                RColorBrewer::brewer.pal(8, "Set2")[1],
                RColorBrewer::brewer.pal(12, "Paired")[9])
+
+data$a <- 100*(data$a.gnm)/data$n.gnm; sum(is.na(data$a))
+data$c <- 100*(data$c.gnm)/data$n.gnm; sum(is.na(data$c))
+data$g <- 100*(data$g.gnm)/data$n.gnm; sum(is.na(data$g))
+data$t <- 100*(data$t.gnm)/data$n.gnm; sum(is.na(data$t))
+
+data$gc <- 100*(data$g.gnm+data$c.gnm)/data$n.gnm; sum(is.na(data$a))
+
+df <- NULL
+for(i in c("gc","a","c","g","t")){
+  for(j in c("gc","a","c","g","t")){
+    if(i!=j){
+      df <- rbind(df,cbind("all",i,j,sum(complete.cases(data[,c(i,j)])),
+                           cor(data[,i],data[,j],use="na.or.complete"),cor.test(data[,i],data[,j],use="na.or.complete")$p.value,
+                           cor(data[,i],data[,j],method="spearman",use="na.or.complete"),cor.test(data[,i],data[,j],method="spearman",use="na.or.complete")$p.value))
+    }
+  }  
+} 
+for(k in levels(data$baltimore)){
+  data[data$baltimore==k,i]
+  for(i in c("gc","a","c","g","t")){
+    for(j in c("gc","a","c","g","t")){
+      if(i!=j){
+        df <- rbind(df,cbind(k,i,j,sum(complete.cases(data[data$baltimore==k,c(i,j)])),
+                             cor(data[data$baltimore==k,i],data[data$baltimore==k,j],use="na.or.complete"),
+                             cor.test(data[data$baltimore==k,i],data[data$baltimore==k,j],use="na.or.complete")$p.value,
+                             cor(data[data$baltimore==k,i],data[data$baltimore==k,j],method="spearman",use="na.or.complete"),
+                             cor.test(data[data$baltimore==k,i],data[data$baltimore==k,j],method="spearman",use="na.or.complete")$p.value))
+      }
+    }  
+  }
+}
+# View(df)
+write.table(df,"cors1.csv",quote = F,row.names = T,col.names = T, sep=",")
 
 #####
 ## Figs.1 (& Figs.S1)
@@ -61,7 +88,7 @@ axis(1, at=seq(0,100,by=20),labels = c(seq(0,80,by=20),""))
 mtext("100%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper(h),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*20,0,j*20,1, col = adjustcolor("black",0.5), lty=3)}
 lines(gc,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[10], 0.5),lwd=5)
 legend(0,max(gc$y), "GC", bg = adjustcolor("white", 0),
@@ -91,7 +118,7 @@ axis(1, at=seq(0,100,by=20),labels = c(seq(0,80,by=20),""))
 mtext("100%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper(h),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*20,0,j*20,1, col = adjustcolor("black",0.5), lty=3)}
 lines(gc,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[10], 0.5),lwd=5)
 legend(0,max(gc$y), "GC", bg = adjustcolor("white", 0),
@@ -121,7 +148,7 @@ axis(1, at=seq(0,100,by=20),labels = c(seq(0,80,by=20),""))
 mtext("100%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper("a"),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*20,0,j*20,1, col = adjustcolor("black",0.5), lty=3)}
 lines(gc,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[10], 0.5),lwd=5)
 legend(0,max(gc$y), "GC", bg = adjustcolor("white", 0),
@@ -150,7 +177,7 @@ axis(1, at=seq(0,50,by=10),labels = c(seq(0,40,by=10),""))
 mtext("50%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper(h),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*10,0,j*10,1, col = adjustcolor("black",0.5), lty=3)}
 lines(g,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[6], 0.5),lwd=5)
 lines(c,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[2], 0.5),lwd=5)
@@ -184,7 +211,7 @@ axis(1, at=seq(0,100,by=20),labels = c(seq(0,80,by=20),""))
 mtext("100%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper(h),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*20,0,j*20,1, col = adjustcolor("black",0.5), lty=3)}
 lines(gc,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[10], 0.5),lwd=5)
 legend(0,max(gc$y), "GC", bg = adjustcolor("white", 0),
@@ -214,7 +241,7 @@ axis(1, at=seq(0,100,by=20),labels = c(seq(0,80,by=20),""))
 mtext("100%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper("b"),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*20,0,j*20,1, col = adjustcolor("black",0.5), lty=3)}
 lines(gc,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[10], 0.5),lwd=5)
 legend(0,max(gc$y), "GC", bg = adjustcolor("white", 0),
@@ -243,7 +270,7 @@ axis(1, at=seq(0,50,by=10),labels = c(seq(0,40,by=10),""))
 mtext("50%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper(h),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*10,0,j*10,1, col = adjustcolor("black",0.5), lty=3)}
 lines(g,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[6], 0.5),lwd=5)
 lines(c,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[2], 0.5),lwd=5)
@@ -277,7 +304,7 @@ axis(1, at=seq(0,100,by=20),labels = c(seq(0,80,by=20),""))
 mtext("100%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper("c"),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*20,0,j*20,1, col = adjustcolor("black",0.5), lty=3)}
 lines(gc,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[10], 0.5),lwd=5)
 legend(0,max(gc$y), "GC", bg = adjustcolor("white", 0),
@@ -306,7 +333,7 @@ axis(1, at=seq(0,50,by=10),labels = c(seq(0,40,by=10),""))
 mtext("50%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper(h),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*10,0,j*10,1, col = adjustcolor("black",0.5), lty=3)}
 lines(g,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[6], 0.5),lwd=5)
 lines(c,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[2], 0.5),lwd=5)
@@ -340,7 +367,7 @@ axis(1, at=seq(0,100,by=20),labels = c(seq(0,80,by=20),""))
 mtext("100%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper("d"),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*20,0,j*20,1, col = adjustcolor("black",0.5), lty=3)}
 lines(gc,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[10], 0.5),lwd=5)
 legend(0,max(gc$y), "GC", bg = adjustcolor("white", 0),
@@ -369,7 +396,7 @@ axis(1, at=seq(0,50,by=10),labels = c(seq(0,40,by=10),""))
 mtext("50%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper(h),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*10,0,j*10,1, col = adjustcolor("black",0.5), lty=3)}
 lines(g,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[6], 0.5),lwd=5)
 lines(c,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[2], 0.5),lwd=5)
@@ -403,7 +430,7 @@ axis(1, at=seq(0,100,by=20),labels = c(seq(0,80,by=20),""))
 mtext("100%", side = 1, adj=1, line = 1, cex.lab = 1, las = 0, col = "black")
 title(paste0("(",toupper(h),")"),adj=0, cex.main=1.5)
 title(i,font.main=1, cex.main=1)
-title(paste0("n = ",length(x)),adj=1,font.main=1, cex.main=1)
+title(paste0("n = ",format(length(x),big.mark=",")),adj=1,font.main=1, cex.main=1)
 for(j in 0:5){segments(j*20,0,j*20,1, col = adjustcolor("black",0.5), lty=3)}
 lines(gc,col=adjustcolor(RColorBrewer::brewer.pal(12, "Paired")[10], 0.5),lwd=5)
 legend(0,max(gc$y), "GC", bg = adjustcolor("white", 0),

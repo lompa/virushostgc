@@ -310,7 +310,7 @@ legend("left", legend=levels(data$baltimore), col=baltimore,
 # palette(pal)
 
 #####
-## Correlations
+## Table 3
 
 with(data, cor(gc, gc0, use="complete.obs"))
 with(data, cor(gc, gc123, use="complete.obs"))
@@ -355,47 +355,7 @@ rBaltimore
 # write.table(do.call(rbind.data.frame,rBaltimore),"table2.csv",quote = F, row.names=T, col.names = T, sep=",")
 
 #####
-## Table 3
-
-rBaltimore[[1]]
-
-rHostCell <- NULL
-"gc0" -> i
-for(j in c("gc1","gc2","gc3")){
-  rHostCell[[paste(j,i,sep="~")]] <- do.call(rbind,
-                                             lapply(
-                                               split(data,data$host_cell),
-                                               function(x) data.frame(x=i,
-                                                                      y=j,
-                                                                      group=x$host_cell[1],
-                                                                      r=cor(x[,i], x[,j], use="complete.obs"),
-                                                                      rho=cor(x[,i], x[,j], method="spearman", use="complete.obs"),
-                                                                      p=cor.test(x[,i], x[,j], method="spearman", use="complete.obs")$p.value,
-                                                                      n=sum(complete.cases(x[,c(i,j)])))))
-  rHostCell[[paste(j,i,sep="~")]] <- rHostCell[[paste(j,i,sep="~")]][row.names(rHostCell[[paste(j,i,sep="~")]])!="1",]
-  rHostCell[[paste(j,i,sep="~")]] <- rHostCell[[paste(j,i,sep="~")]][order(rHostCell[[paste(j,i,sep="~")]]$n,
-                                                                           decreasing = TRUE),]
-}
-rHostCell
-
-rHostType <- NULL
-"gc0" -> i
-for(j in c("gc1","gc2","gc3")){
-  rHostType[[paste(j,i,sep="~")]] <- do.call(rbind,
-                                             lapply(
-                                               split(data,data$host_type),
-                                               function(x) data.frame(x=i,
-                                                                      y=j,
-                                                                      group=x$host_type[1],
-                                                                      r=cor(x[,i], x[,j], use="complete.obs"),
-                                                                      rho=cor(x[,i], x[,j], method="spearman", use="complete.obs"),
-                                                                      p=cor.test(x[,i], x[,j], method="spearman", use="complete.obs")$p.value,
-                                                                      n=sum(complete.cases(x[,c(i,j)])))))
-  rHostType[[paste(j,i,sep="~")]] <- rHostType[[paste(j,i,sep="~")]][row.names(rHostType[[paste(j,i,sep="~")]])!="1",]
-  rHostType[[paste(j,i,sep="~")]] <- rHostType[[paste(j,i,sep="~")]][order(rHostType[[paste(j,i,sep="~")]]$n,
-                                                                           decreasing = TRUE),]
-}
-rHostType
+##  More correlations
 
 rHost <- NULL
 "gc0" -> i
@@ -417,6 +377,9 @@ for(j in c("gc1","gc2","gc3")){
 rHost
 
 dtPk <- data[data$host_cell == "prokaryote",]
+table(dtPk$baltimore)
+dtPk$baltimore <- droplevels(dtPk$baltimore)
+table(dtPk$baltimore)
 
 with(dtPk,cor(gc, gc1, use = "complete.obs"))
 with(dtPk,cor(gc, gc2, use = "complete.obs"))
@@ -435,58 +398,16 @@ for(j in c("gc1","gc2","gc3")){
                                                   function(x) data.frame(x=i,
                                                                          y=j,
                                                                          group=x$baltimore[1],
-                                                                         # r=cor(x[,i], x[,j], use="complete.obs"),
-                                                                         r=cor(x[,i], x[,j], use="na.or.complete"),
-                                                                         p=cor.test(x[,i], x[,j], use="na.or.complete")$p.value,
-                                                                         rho=cor(x[,i], x[,j], method="spearman", use="na.or.complete"),
-                                                                         p=cor.test(x[,i], x[,j], method="spearman", use="na.or.complete")$p.value,
+                                                                         r=cor(x[,i], x[,j], use="complete.obs"),
+                                                                         p=cor.test(x[,i], x[,j], use="complete.obs")$p.value,
+                                                                         rho=cor(x[,i], x[,j], method="spearman", use="complete.obs"),
+                                                                         p=cor.test(x[,i], x[,j], method="spearman", use="complete.obs")$p.value,
                                                                          n=sum(complete.cases(x[,c(i,j)])))))
 }
 rBaltimorePk
 
-rHostCellPk <- NULL
-"gc0" -> i
-for(j in c("gc1","gc2","gc3")){
-  rHostCellPk[[paste(j,i,sep="~")]] <- do.call(rbind,
-                                               lapply(
-                                                 split(dtPk,dtPk$host_cell),
-                                                 function(x) data.frame(x=i,
-                                                                        y=j,
-                                                                        group=x$host_cell[1],
-                                                                        # r=cor(x[,i], x[,j], use="complete.obs"),
-                                                                        r=cor(x[,i], x[,j], use="na.or.complete"),
-                                                                        p=cor.test(x[,i], x[,j], use="na.or.complete")$p.value,
-                                                                        rho=cor(x[,i], x[,j], method="spearman", use="na.or.complete"),
-                                                                        p=cor.test(x[,i], x[,j], method="spearman", use="na.or.complete")$p.value,
-                                                                        n=sum(complete.cases(x[,c(i,j)])))))
-  rHostCell[[paste(j,i,sep="~")]] <- rHostCell[[paste(j,i,sep="~")]][row.names(rHostCell[[paste(j,i,sep="~")]])!="1",]
-  rHostCell[[paste(j,i,sep="~")]] <- rHostCell[[paste(j,i,sep="~")]][order(rHostCell[[paste(j,i,sep="~")]]$n,
-                                                                           decreasing = TRUE),]
-}
-rHostCellPk
-
-rHostTypePk <- NULL
-"gc0" -> i
-for(j in c("gc1","gc2","gc3")){
-  rHostTypePk[[paste(j,i,sep="~")]] <- do.call(rbind,
-                                               lapply(
-                                                 split(dtPk,dtPk$host_type),
-                                                 function(x) data.frame(x=i,
-                                                                        y=j,
-                                                                        group=x$host_type[1],
-                                                                        # r=cor(x[,i], x[,j], use="complete.obs"),
-                                                                        r=cor(x[,i], x[,j], use="na.or.complete"),
-                                                                        p=cor.test(x[,i], x[,j], use="na.or.complete")$p.value,
-                                                                        rho=cor(x[,i], x[,j], method="spearman", use="na.or.complete"),
-                                                                        p=cor.test(x[,i], x[,j], method="spearman", use="na.or.complete")$p.value,
-                                                                        n=sum(complete.cases(x[,c(i,j)])))))
-  rHostType[[paste(j,i,sep="~")]] <- rHostType[[paste(j,i,sep="~")]][row.names(rHostType[[paste(j,i,sep="~")]])!="1",]
-  rHostType[[paste(j,i,sep="~")]] <- rHostType[[paste(j,i,sep="~")]][order(rHostType[[paste(j,i,sep="~")]]$n,
-                                                                           decreasing = TRUE),]
-}
-rHostTypePk
-
 dtEk <- data[data$host_cell != "prokaryote",]
+table(dtEk$baltimore)
 
 with(dtEk,cor(gc, gc1, use = "complete.obs"))
 with(dtEk,cor(gc, gc2, use = "complete.obs"))
@@ -505,53 +426,11 @@ for(j in c("gc1","gc2","gc3")){
                                                   function(x) data.frame(x=i,
                                                                          y=j,
                                                                          group=x$baltimore[1],
-                                                                         # r=cor(x[,i], x[,j], use="complete.obs"),
-                                                                         r=cor(x[,i], x[,j], use="na.or.complete"),
-                                                                         p=cor.test(x[,i], x[,j], use="na.or.complete")$p.value,
-                                                                         rho=cor(x[,i], x[,j], method="spearman", use="na.or.complete"),
-                                                                         p=cor.test(x[,i], x[,j], method="spearman", use="na.or.complete")$p.value,
+                                                                         r=cor(x[,i], x[,j], use="complete.obs"),
+                                                                         # r=cor(x[,i], x[,j], use="na.or.complete"),
+                                                                         p=cor.test(x[,i], x[,j], use="complete.obs")$p.value,
+                                                                         rho=cor(x[,i], x[,j], method="spearman", use="complete.obs"),
+                                                                         p=cor.test(x[,i], x[,j], method="spearman", use="complete.obs")$p.value,
                                                                          n=sum(complete.cases(x[,c(i,j)])))))
 }
 rBaltimoreEk
-
-rHostCellEk <- NULL
-"gc0" -> i
-for(j in c("gc1","gc2","gc3")){
-  rHostCellEk[[paste(j,i,sep="~")]] <- do.call(rbind,
-                                               lapply(
-                                                 split(dtEk,dtEk$host_cell),
-                                                 function(x) data.frame(x=i,
-                                                                        y=j,
-                                                                        group=x$host_cell[1],
-                                                                        # r=cor(x[,i], x[,j], use="complete.obs"),
-                                                                        r=cor(x[,i], x[,j], use="na.or.complete"),
-                                                                        p=cor.test(x[,i], x[,j], use="na.or.complete")$p.value,
-                                                                        rho=cor(x[,i], x[,j], method="spearman", use="na.or.complete"),
-                                                                        p=cor.test(x[,i], x[,j], method="spearman", use="na.or.complete")$p.value,
-                                                                        n=sum(complete.cases(x[,c(i,j)])))))
-  rHostCell[[paste(j,i,sep="~")]] <- rHostCell[[paste(j,i,sep="~")]][row.names(rHostCell[[paste(j,i,sep="~")]])!="1",]
-  rHostCell[[paste(j,i,sep="~")]] <- rHostCell[[paste(j,i,sep="~")]][order(rHostCell[[paste(j,i,sep="~")]]$n,
-                                                                           decreasing = TRUE),]
-}
-rHostCellEk
-
-rHostTypeEk <- NULL
-"gc0" -> i
-for(j in c("gc1","gc2","gc3")){
-  rHostTypeEk[[paste(j,i,sep="~")]] <- do.call(rbind,
-                                               lapply(
-                                                 split(dtEk,dtEk$host_type),
-                                                 function(x) data.frame(x=i,
-                                                                        y=j,
-                                                                        group=x$host_type[1],
-                                                                        # r=cor(x[,i], x[,j], use="complete.obs"),
-                                                                        r=cor(x[,i], x[,j], use="na.or.complete"),
-                                                                        p=cor.test(x[,i], x[,j], use="na.or.complete")$p.value,
-                                                                        rho=cor(x[,i], x[,j], method="spearman", use="na.or.complete"),
-                                                                        p=cor.test(x[,i], x[,j], method="spearman", use="na.or.complete")$p.value,
-                                                                        n=sum(complete.cases(x[,c(i,j)])))))
-  rHostType[[paste(j,i,sep="~")]] <- rHostType[[paste(j,i,sep="~")]][row.names(rHostType[[paste(j,i,sep="~")]])!="1",]
-  rHostType[[paste(j,i,sep="~")]] <- rHostType[[paste(j,i,sep="~")]][order(rHostType[[paste(j,i,sep="~")]]$n,
-                                                                           decreasing = TRUE),]
-}
-rHostTypeEk
